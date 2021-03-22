@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">GalleryApp229852</string>
+    <string name="todo">TODO</string>
+    <string name="take_a_photo">Take a photo</string>
+    <string name="remove_item">Remove item</string>
+    <string name="delete">Delete</string>
+</resources>
