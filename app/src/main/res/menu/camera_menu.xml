@@ -1,8 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-<item android:id="@+id/camera_option"
-    android:icon="@drawable/ic_camera_icon"
-    android:title="@string/take_a_photo"
-    app:showAsAction="always"/>
+    <item
+        android:id="@+id/searchOption"
+        android:title="@string/search"
+        android:icon="@drawable/ic_search_menu"
+        app:showAsAction="always|collapseActionView"
+        app:actionViewClass="android.widget.SearchView" />
+    <item
+        android:id="@+id/camera_option"
+        android:icon="@drawable/ic_camera_icon"
+        android:title="@string/take_a_photo"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/saveButton"
+        android:icon="@drawable/ic_save_button"
+        android:title="@string/save_the_gallery"
+        app:showAsAction="always"
+        />
+
 </menu>
