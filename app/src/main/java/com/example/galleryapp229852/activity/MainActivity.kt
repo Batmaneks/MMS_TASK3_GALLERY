@@ -159,10 +159,35 @@ class MainActivity : AppCompatActivity(), GalleryImageClickListener {
             }
         }
     }
-
+    private val VIDEO_CAPTURE = 101
+    private fun recordAVideo() {
+        Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { captureVideoIntent ->
+            captureVideoIntent.resolveActivity(packageManager)?.also {
+            val videoFile: File? = try{
+                createVidFile()
+            } catch (ex: IOException){
+                Toast.makeText(this, ex.toString(), Toast.LENGTH_SHORT).show()
+                null
+            }
+            videoFile?.also {
+                val vidURI: Uri = FileProvider.getUriForFile(
+                    this,
+                    "com.example.android.fileprovider",
+                    it
+                )
+                captureVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT,vidURI)
+                startActivityForResult(captureVideoIntent, VIDEO_CAPTURE)
+            }
+            }
+        }
+    }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.camera_option) {
             dispatchTakePictureIntent()
+            return true
+        }
+        if (item.itemId == R.id.video_option) {
+            recordAVideo()
             return true
         }
         if (item.itemId == R.id.saveButton) {
@@ -200,6 +225,21 @@ class MainActivity : AppCompatActivity(), GalleryImageClickListener {
 
     private lateinit var currentPhotoPath: String
 
+
+    @Throws(IOException::class)
+    private fun createVidFile(): File{
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val storageDir: File = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
+        return File.createTempFile(
+            "VID_${timeStamp}_", /* prefix */
+            ".mp4", /* suffix */
+            storageDir /* directory */
+        ).apply {
+            // Save a file: path for use with ACTION_VIEW intents
+            currentPhotoPath = absolutePath
+        }
+    }
+
     @Throws(IOException::class)
     private fun createImageFile(): File {
         // Create an image file name
@@ -232,11 +272,25 @@ class MainActivity : AppCompatActivity(), GalleryImageClickListener {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+    private fun galleryAddVid() {
+        Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).also { mediaScanIntent ->
+            val f = File(currentPhotoPath)
+            mediaScanIntent.data = Uri.fromFile(f)
+            displayList.add(Image(mediaScanIntent.data.toString(), currentPhotoPath))
+
+            sendBroadcast(mediaScanIntent)
+        }}
+
+        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE && data != null) {
             galleryAddPic()
             //imageList.add(data.extras?.get("data") as Image)
+            galleryAdapter.notifyDataSetChanged()
+        }
+        if (requestCode == Activity.RESULT_OK && requestCode == VIDEO_CAPTURE && data != null){
+            galleryAddVid()
             galleryAdapter.notifyDataSetChanged()
         }
     }
